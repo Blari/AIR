@@ -1,8 +1,8 @@
 
 const express = require('express');
 
-const UsersService = require('../services/users');
-const UsersDBApi = require('../db/api/users');
+const CarService = require('../services/car');
+const CarDBApi = require('../db/api/car');
 const wrapAsync = require('../helpers').wrapAsync;
 
 const router = express.Router();
@@ -11,43 +11,30 @@ const router = express.Router();
  *  @swagger
  *  components:
  *    schemas:
- *      Users:
+ *      Car:
  *        type: object
  *        properties:
 
- *          firstName:
+ *          mark:
  *            type: string
- *            default: firstName
- *          lastName:
- *            type: string
- *            default: lastName
- *          phoneNumber:
- *            type: string
- *            default: phoneNumber
- *          email:
- *            type: string
- *            default: email
+ *            default: mark
 
- *          
- *          role:
- *            type: string
- *            default: user
  */
 
 /**
  *  @swagger
  * tags:
- *   name: Users
- *   description: The Users managing API
+ *   name: Car
+ *   description: The Car managing API
  */
 
   /**
   *  @swagger
-  *  /api/users:
+  *  /api/car:
   *    post:
   *      security:
   *        - bearerAuth: []
-  *      tags: [Users]
+  *      tags: [Car]
   *      summary: Add new item
   *      description: Add new item
   *      requestBody:
@@ -59,14 +46,14 @@ const router = express.Router();
   *                data:
   *                  description: Data of the updated item
   *                  type: object
-  *                  $ref: "#/components/schemas/Users"
+  *                  $ref: "#/components/schemas/Car"
   *      responses:
   *        200:
   *          description: The item was successfully added
   *          content:
   *            application/json:
   *              schema:
-  *                $ref: "#/components/schemas/Users"
+  *                $ref: "#/components/schemas/Car"
   *        401:
   *          $ref: "#/components/responses/UnauthorizedError"
   *        405:
@@ -76,18 +63,18 @@ const router = express.Router();
   */
 
 router.post('/', async (req, res) => {
-    await UsersService.create(req.body.data, req.currentUser, true, req.headers.referer);
+    await CarService.create(req.body.data, req.currentUser, true, req.headers.referer);
     const payload = true;
     res.status(200).send(payload);
 });
 
   /**
   *  @swagger
-  *  /api/users/{id}:
+  *  /api/car/{id}:
   *    put:
   *      security:
   *        - bearerAuth: []
-  *      tags: [Users]
+  *      tags: [Car]
   *      summary: Update the data of the selected item
   *      description: Update the data of the selected item
   *      parameters:
@@ -110,7 +97,7 @@ router.post('/', async (req, res) => {
   *                data:
   *                  description: Data of the updated item
   *                  type: object
-  *                  $ref: "#/components/schemas/Users"
+  *                  $ref: "#/components/schemas/Car"
   *              required:
   *                - id
   *      responses:
@@ -119,7 +106,7 @@ router.post('/', async (req, res) => {
   *          content:
   *            application/json:
   *              schema:
-  *                $ref: "#/components/schemas/Users"
+  *                $ref: "#/components/schemas/Car"
   *        400:
   *          description: Invalid ID supplied
   *        401:
@@ -131,18 +118,18 @@ router.post('/', async (req, res) => {
   */
 
 router.put('/:id', wrapAsync(async (req, res) => {
-  await UsersService.update(req.body.data, req.body.id, req.currentUser);
+  await CarService.update(req.body.data, req.body.id, req.currentUser);
   const payload = true;
   res.status(200).send(payload);
 }));
 
   /**
   * @swagger
-  *  /api/users/{id}:
+  *  /api/car/{id}:
   *    delete:
   *      security:
   *        - bearerAuth: []
-  *      tags: [Users]
+  *      tags: [Car]
   *      summary: Delete the selected item
   *      description: Delete the selected item
   *      parameters:
@@ -158,7 +145,7 @@ router.put('/:id', wrapAsync(async (req, res) => {
   *          content:
   *            application/json:
   *              schema:
-  *                $ref: "#/components/schemas/Users"
+  *                $ref: "#/components/schemas/Car"
   *        400:
   *          description: Invalid ID supplied
   *        401:
@@ -170,29 +157,29 @@ router.put('/:id', wrapAsync(async (req, res) => {
   */
 
 router.delete('/:id', wrapAsync(async (req, res) => {
-  await UsersService.remove(req.params.id, req.currentUser);
+  await CarService.remove(req.params.id, req.currentUser);
   const payload = true;
   res.status(200).send(payload);
 }));
 
   /**
   *  @swagger
-  *  /api/users:
+  *  /api/car:
   *    get:
   *      security:
   *        - bearerAuth: []
-  *      tags: [Users]
-  *      summary: Get all users
-  *      description: Get all users
+  *      tags: [Car]
+  *      summary: Get all car
+  *      description: Get all car
   *      responses:
   *        200:
-  *          description: Users list successfully received
+  *          description: Car list successfully received
   *          content:
   *            application/json:
   *              schema:
   *                type: array
   *                items:
-  *                  $ref: "#/components/schemas/Users"
+  *                  $ref: "#/components/schemas/Car"
   *        401:
   *          $ref: "#/components/responses/UnauthorizedError"
   *        404:
@@ -202,7 +189,7 @@ router.delete('/:id', wrapAsync(async (req, res) => {
   */
 
 router.get('/', wrapAsync(async (req, res) => {
-  const payload = await UsersDBApi.findAll(
+  const payload = await CarDBApi.findAll(
     req.query,
   );
 
@@ -210,7 +197,7 @@ router.get('/', wrapAsync(async (req, res) => {
 }));
 
 router.get('/autocomplete', async (req, res) => {
-  const payload = await UsersDBApi.findAllAutocomplete(
+  const payload = await CarDBApi.findAllAutocomplete(
     req.query.query,
     req.query.limit,
   );
@@ -220,11 +207,11 @@ router.get('/autocomplete', async (req, res) => {
 
   /**
   * @swagger
-  *  /api/users/{id}:
+  *  /api/car/{id}:
   *    get:
   *      security:
   *        - bearerAuth: []
-  *      tags: [Users]
+  *      tags: [Car]
   *      summary: Get selected item
   *      description: Get selected item
   *      parameters:
@@ -240,7 +227,7 @@ router.get('/autocomplete', async (req, res) => {
   *          content:
   *            application/json:
   *              schema:
-  *                $ref: "#/components/schemas/Users"
+  *                $ref: "#/components/schemas/Car"
   *        400:
   *          description: Invalid ID supplied
   *        401:
@@ -252,11 +239,9 @@ router.get('/autocomplete', async (req, res) => {
   */
 
 router.get('/:id', wrapAsync(async (req, res) => {
-  const payload = await UsersDBApi.findBy(
+  const payload = await CarDBApi.findBy(
     { id: req.params.id },
   );
-
-    delete payload.password;
 
   res.status(200).send(payload);
 }));
