@@ -41,6 +41,36 @@ module.exports = {
                         },
                     }, { transaction });
 
+                    await queryInterface.createTable('car', {
+                        id: {
+                            type: Sequelize.DataTypes.UUID,
+                            defaultValue: Sequelize.DataTypes.UUIDV4,
+                            primaryKey: true,
+                        },
+                        createdById: {
+                            type: Sequelize.DataTypes.UUID,
+                            references: {
+                                key: 'id',
+                                model: 'users',
+                            },
+                        },
+                        updatedById: {
+                            type: Sequelize.DataTypes.UUID,
+                            references: {
+                                key: 'id',
+                                model: 'users',
+                            },
+                        },
+                        createdAt: { type: Sequelize.DataTypes.DATE },
+                        updatedAt: { type: Sequelize.DataTypes.DATE },
+                        deletedAt: { type: Sequelize.DataTypes.DATE },
+                        importHash: {
+                            type: Sequelize.DataTypes.STRING(255),
+                            allowNull: true,
+                            unique: true,
+                        },
+                    }, { transaction });
+
                     await queryInterface.addColumn(
                       'users',
                       'firstName',
@@ -179,6 +209,16 @@ module.exports = {
                       { transaction }
                     );
 
+                    await queryInterface.addColumn(
+                      'car',
+                      'mark',
+                      {
+                          type: Sequelize.DataTypes.TEXT,
+
+                      },
+                      { transaction }
+                    );
+
             await transaction.commit();
         } catch (err) {
             await transaction.rollback();
@@ -196,6 +236,12 @@ module.exports = {
          */
         const transaction = await queryInterface.sequelize.transaction();
         try {
+
+                    await queryInterface.removeColumn(
+                        'car',
+                        'mark',
+                        { transaction }
+                    );
 
                     await queryInterface.removeColumn(
                         'users',
@@ -274,6 +320,8 @@ module.exports = {
                         'firstName',
                         { transaction }
                     );
+
+                    await queryInterface.dropTable('car', { transaction });
 
                     await queryInterface.dropTable('users', { transaction });
 
